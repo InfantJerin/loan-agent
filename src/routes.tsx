@@ -13,6 +13,7 @@ import { DealDocuments } from '@/screens/deal/tabs/DealDocuments'
 import { DealActivity } from '@/screens/deal/tabs/DealActivity'
 import { ServicingScreen } from '@/screens/servicing/ServicingScreen'
 import { DocumentsScreen } from '@/screens/documents/DocumentsScreen'
+import { DocumentReviewScreen } from '@/screens/documents/DocumentReviewScreen'
 import { AgencyScreen } from '@/screens/agency/AgencyScreen'
 import { ReportsScreen } from '@/screens/reports/ReportsScreen'
 
@@ -40,6 +41,7 @@ export const router = createBrowserRouter([
       },
       { path: 'servicing', element: <ServicingScreen /> },
       { path: 'documents', element: <DocumentsScreen /> },
+      { path: 'documents/:documentId/review', element: <DocumentReviewScreen /> },
       { path: 'agency', element: <AgencyScreen /> },
       { path: 'reports', element: <ReportsScreen /> },
     ],

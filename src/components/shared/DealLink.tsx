@@ -26,7 +26,7 @@ export function LenderLink({ lenderId, children, className = '' }: { lenderId: s
 
 export function DocumentLink({ documentId, children, className = '' }: { documentId: string; children: React.ReactNode; className?: string }) {
   return (
-    <Link to={`/documents?doc=${documentId}`} className={`text-primary hover:underline ${className}`}>
+    <Link to={`/documents/${documentId}/review`} className={`text-primary hover:underline ${className}`}>
       {children}
     </Link>
   )

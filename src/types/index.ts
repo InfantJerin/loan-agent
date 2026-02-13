@@ -216,3 +216,105 @@ export interface AIMessage {
   citations?: { text: string; dealId?: string; documentId?: string }[]
   suggestedActions?: { label: string; action: string }[]
 }
+
+// ── Document Processing: Schema-Driven Extraction Types ──
+
+export type DocumentCategory = 'credit_agreement' | 'amendment' | 'compliance_certificate' | 'borrowing_notice' | 'assignment_agreement' | 'financial_statement' | 'funding_notice' | 'rate_set_notice'
+
+export type ExtractionFieldType = 'text' | 'currency' | 'percentage' | 'rate' | 'date' | 'number' | 'ratio' | 'table' | 'formula' | 'conditional' | 'boolean' | 'select'
+
+export type ApprovalStatus = 'pending' | 'approved' | 'rejected' | 'flagged' | 'partial'
+
+export type CitationLevel = 'single' | 'cross_reference' | 'inferred'
+
+export interface ExtractionFieldDef {
+  id: string
+  label: string
+  type: ExtractionFieldType
+  required?: boolean
+  editable?: boolean
+  description?: string
+  // For select type
+  options?: string[]
+  // For table type
+  columns?: { key: string; label: string; type: ExtractionFieldType }[]
+  // Presentation hints
+  width?: 'full' | 'half' | 'third'
+  group?: string
+}
+
+export interface ExtractionSectionDef {
+  id: string
+  label: string
+  level: 'agreement' | 'facility' | 'covenant' | 'reporting' | 'conditions' | 'general'
+  approvalScope: 'section' | 'field'
+  repeatable?: boolean
+  repeatLabel?: string // e.g., "Facility" — used for dynamic labels like "Facility 1: $500M Revolver"
+  collapsible?: boolean
+  fields: ExtractionFieldDef[]
+  subsections?: ExtractionSectionDef[]
+}
+
+export interface ExtractionSchema {
+  id: string
+  name: string
+  documentCategory: DocumentCategory
+  version: string
+  description?: string
+  sections: ExtractionSectionDef[]
+}
+
+export interface CitationRef {
+  id: string
+  label: string
+  sectionRef: string
+  pageNumber: number
+  snippetText: string
+  boundingBox?: { x: number; y: number; width: number; height: number }
+  level: CitationLevel
+}
+
+export type FieldReviewStatus = 'unreviewed' | 'confirmed' | 'corrected' | 'flagged'
+
+export interface ExtractionFieldResult {
+  fieldDefId: string
+  extractedValue: string | number | boolean | null
+  correctedValue?: string | number | boolean | null
+  confidence: 'high' | 'medium' | 'low'
+  confidenceScore: number
+  status: FieldReviewStatus
+  citations: CitationRef[]
+  // For table type — rows of values keyed by column key
+  tableData?: Record<string, string | number>[]
+  // For formula type
+  formulaDisplay?: string
+  // For conditional type
+  conditions?: { condition: string; value: string; citations: CitationRef[] }[]
+}
+
+export interface ExtractionSectionResult {
+  sectionDefId: string
+  instanceLabel?: string // For repeatable sections, e.g., "Facility A: $500M Revolving Credit"
+  instanceIndex?: number
+  approvalStatus: ApprovalStatus
+  approvedBy?: string
+  approvedAt?: string
+  fields: ExtractionFieldResult[]
+  subsections?: ExtractionSectionResult[]
+}
+
+export interface ExtractionResult {
+  id: string
+  documentId: string
+  dealId: string
+  schemaId: string
+  status: 'in_progress' | 'completed' | 'approved' | 'rejected'
+  overallConfidence: number
+  overallApproval: ApprovalStatus
+  completedSections: number
+  totalSections: number
+  assignedTo?: string
+  startedAt: string
+  completedAt?: string
+  sections: ExtractionSectionResult[]
+}
